@@ -7,8 +7,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +20,7 @@ public class ImdbApiApplication {
     public static void main(String[] args) throws Exception {
         SpringApplication.run(ImdbApiApplication.class, args);
 
-        String apiKey = "k_w3pqxprh";
+        String apiKey = "<sua-chave>";
         URI apiIMDb = URI.create("https://imdb-api.com/en/API/Top250Movies/" + apiKey);
 
         HttpClient client = HttpClient.newHttpClient();
@@ -30,20 +29,27 @@ public class ImdbApiApplication {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String json = response.body();
 
+        List<Movie> movies = parse(json);
+
+        System.out.println(movies.size());
+        movies.forEach(System.out::println);
+
+    }
+
+    private static List<Movie> parse(String json) {
         String[] moviesArray = parseJsonMovies(json);
 
         List<String> titles = parseTitles(moviesArray);
-        titles.forEach(System.out::println);
-
         List<String> urlImages = parseUrlImages(moviesArray);
-        urlImages.forEach(System.out::println);
-
         List<String> ratings = parseRatings(moviesArray);
-        ratings.forEach(System.out::println);
-
         List<String> years = parseYears(moviesArray);
-        years.forEach(System.out::println);
 
+        List<Movie> movies = new ArrayList<>(titles.size());
+
+        for (int i =0; i < titles.size(); i++) {
+            movies.add(new Movie(titles.get(i), urlImages.get(i) , ratings.get(i), years.get(i)));
+        }
+        return movies;
     }
 
     private static List<String> parseTitles(String[] moviesArray) {
