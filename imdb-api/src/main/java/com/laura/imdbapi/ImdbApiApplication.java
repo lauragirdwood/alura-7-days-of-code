@@ -12,24 +12,24 @@ import java.net.http.HttpResponse;
 @SpringBootApplication
 public class ImdbApiApplication {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         SpringApplication.run(ImdbApiApplication.class, args);
 
+        String apiKey = "<sua chave>";
+        URI apiIMDb = URI.create("https://imdb-api.com/en/API/Top250Movies/" + apiKey);
+
         HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder().uri(apiIMDb).build();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://imdb-api.com/en/API/Top250Movies/<api-key>"))
-                .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        String json = response.body();
 
-//        HttpResponse<String> response =
-//                client.send(request, HttpResponse.BodyHandlers.ofString());
-//        System.out.println(response.body());
+        System.out.println("Resposta: " + json);
 
-        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenAccept(System.out::println)
-                .join();
-
+//        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+//                .thenApply(HttpResponse::body)
+//                .thenAccept(System.out::println)
+//                .join();
     }
 
 }
